@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/aman4Git/aman-portfolio#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",
     "dotgitignore": "^2.1.0",
     "express": "^4.18.2",
