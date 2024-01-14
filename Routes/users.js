@@ -1,12 +1,30 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../Controller/UserController");
+const authController = require("../Controller/Auth/AuthController");
+const { body } = require("express-validator");
 
 /**
  * @author Aman
  * @description Route to creating users
  */
-router.post("/", userController.createUser);
+router.post(
+  "/",
+  body("firstName")
+    .isLength({ min: 1 })
+    .withMessage("Firstname must not be empty"),
+  body("lastName")
+    .isLength({ min: 1 })
+    .withMessage("Lastname must not be empty"),
+  body("email")
+    .isEmail()
+    .isLength({ min: 1 })
+    .withMessage("Email must not be empty"),
+  body("password")
+    .isLength({ min: 1 })
+    .withMessage("Password must not be empty"),
+  userController.createUser
+);
 
 /**
  * @author Aman
@@ -32,6 +50,33 @@ router.delete("/:id", userController.deleteUser);
 /**
  * @description Route to verify users email
  */
-router.post("/verify-email", userController.verifyEmail);
+router.post(
+  "/verify-email",
+  body("otp").isLength({ min: 6 }).withMessage("OTP must not be empty"),
+  body("verificationToken")
+    .isLength({ max: 700 })
+    .withMessage("verificationToken must not be empty"),
+  body("email")
+    .isEmail()
+    .isLength({ min: 1 })
+    .withMessage("Email must not be empty"),
+  userController.verifyEmail
+);
+
+/**
+ * @author Aman
+ * @description Route to Login users
+ */
+router.post(
+  "/login",
+  body("email")
+    .isEmail()
+    .isLength({ min: 1 })
+    .withMessage("Email must not be empty"),
+  body("password")
+    .isLength({ min: 1 })
+    .withMessage("Password must not be empty"),
+  authController.login
+);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const User = require("../Models/User");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const { validationResult } = require("express-validator");
 
 // Function to generate a secure random key
 const generateSecretKey = () => {
@@ -52,6 +53,12 @@ const decryptToken = (token) => {
 
 exports.createUser = async (req, res) => {
   try {
+    //returning validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ status: false, result: errors.array() });
+    }
+
     // Check if a user with the specified email already exists
     const existingUser = await User.findOne({ email: req.body.email });
 
@@ -128,7 +135,7 @@ exports.getUserById = async (req, res) => {
     // Send an error response if there's an issue
     res
       .status(500)
-      .json({ message: "Error whileretrieving user", error: err.message });
+      .json({ message: "Error while retrieving user", error: err.message });
   }
 };
 
@@ -196,6 +203,13 @@ exports.deleteUser = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
   try {
+    //returning validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ status: false, result: errors.array() });
+    }
+
+    //OTP, Email and verificationToken
     const { email, otp, verificationToken } = req.body;
 
     const decryptedData = decryptToken(verificationToken);
