@@ -1,6 +1,54 @@
 const { default: mongoose } = require("mongoose");
 const User = require("../Models/User");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+
+// Function to generate a secure random key
+const generateSecretKey = () => {
+  const secretKey = crypto.randomBytes(32).toString("hex");
+  // console.log(`Generated Secret Key: ${secretKey}`);
+  return secretKey;
+};
+
+// Function to generate a secure verification token for email verification
+const generateEncryptedToken = (email) => {
+  const otp = 123456;
+  const currentTime = Date.now().toString();
+  const tokenString = `${email}:${otp}:${currentTime}`;
+
+  const algorithm = "aes-256-cbc";
+  const secretKey = process.env.SECRET_KEY || generateSecretKey();
+  const iv = crypto.randomBytes(16);
+
+  const cipher = crypto.createCipheriv(
+    algorithm,
+    Buffer.from(secretKey, "hex"),
+    iv
+  );
+  let encrypted = cipher.update(tokenString);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+  return `${iv.toString("hex")}:${encrypted.toString("hex")}`;
+};
+
+// Function to decrypt secure verification token
+const decryptToken = (token) => {
+  const algorithm = "aes-256-cbc";
+  const secretKey = process.env.SECRET_KEY;
+
+  const [iv, encryptedData] = token
+    .split(":")
+    .map((part) => Buffer.from(part, "hex"));
+  const decipher = crypto.createDecipheriv(
+    algorithm,
+    Buffer.from(secretKey, "hex"),
+    iv
+  );
+  let decrypted = decipher.update(encryptedData);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+  return decrypted.toString();
+};
 
 exports.createUser = async (req, res) => {
   try {
@@ -28,10 +76,13 @@ exports.createUser = async (req, res) => {
     // Save the user to the database
     await newUser.save();
 
+    const verificationToken = generateEncryptedToken(newUser.email);
+
     // Send a response back on success
-    res
-      .status(201)
-      .json({ message: "User created successfully", user: newUser });
+    res.status(201).json({
+      message: "User created successfully",
+      data: { verificationToken, user: newUser },
+    });
   } catch (error) {
     // Send an error response if there's an issue
     res
@@ -140,5 +191,36 @@ exports.deleteUser = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error while deleting user", error: err.message });
+  }
+};
+
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { email, otp, verificationToken } = req.body;
+
+    const decryptedData = decryptToken(verificationToken);
+    const [decryptedEmail, decryptedOtp, decryptedTime] =
+      decryptedData.split(":");
+
+    if (email !== decryptedEmail || otp.toString() !== decryptedOtp) {
+      return res.status(400).json({ message: "Invalid verification data" });
+    }
+
+    // Retrieve user from User collection and update
+    const user = await User.findOneAndUpdate(
+      { email },
+      { is_email_verified: true },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "Email verified successfully", user });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error during email verification",
+      error: error.message,
+    });
   }
 };
