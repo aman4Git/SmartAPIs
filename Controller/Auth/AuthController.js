@@ -3,7 +3,19 @@ const User = require("../../Models/User");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
+const axios = require('axios');
 
+// Function to send a message to Google Chat webhook
+async function sendMessageToGoogleChat(message) {
+  try {
+    const webhookUrl = 'https://chat.googleapis.com/v1/spaces/AAAAjZwD-XU/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VNzm3OZFIF8RyyQmK8l7SsQstUKvO5uHHLHmPNmQ7gs';
+
+    await axios.post(webhookUrl, message);
+    console.log('Message sent to Google Chat successfully.');
+  } catch (error) {
+    console.error('Error sending message to Google Chat:', error);
+  }
+}
 exports.login = async (req, res) => {
   try {
     // Returning validation errors
@@ -38,6 +50,9 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, {
       expiresIn: process.env.AUTH_TOKEN_EXPIRE_IN,
     });
+
+     // Sending a message to Google Chat webhook
+     await sendMessageToGoogleChat({ text: `${user.firstName} ${user.lastName} has successfully logged in. With Email: ${user.email} and His/Her role is ${user.role}` });
 
     //returning response
     res.status(200).json({
