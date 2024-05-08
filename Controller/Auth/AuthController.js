@@ -8,8 +8,7 @@ const axios = require('axios');
 // Function to send a message to Google Chat webhook
 async function sendMessageToGoogleChat(message) {
   try {
-    const webhookUrl = 'https://chat.googleapis.com/v1/spaces/AAAAjZwD-XU/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VNzm3OZFIF8RyyQmK8l7SsQstUKvO5uHHLHmPNmQ7gs';
-
+    const webhookUrl = process.env.WEBHOOK_URL;
     await axios.post(webhookUrl, message);
     console.log('Message sent to Google Chat successfully.');
   } catch (error) {
