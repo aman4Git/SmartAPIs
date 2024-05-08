@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aman4Git/aman-portfolio.git"
+    "url": "git+https://github.com/aman4Git/SmartAPIs.git"
   },
   "author": "Aman Mishra",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/aman4Git/aman-portfolio/issues"
+    "url": "https://github.com/aman4Git/SmartAPIs/issues"
   },
-  "homepage": "https://github.com/aman4Git/aman-portfolio#readme",
+  "homepage": "https://github.com/aman4Git/SmartAPIs#readme",
   "dependencies": {
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
