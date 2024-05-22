@@ -139,7 +139,8 @@ exports.deleteUser = async (req, res) => {
     }
 
     // Retrieving user by their ID and delete
-    const user = await User.findOneAndDelete(userId);
+    const user = await User.findByIdAndDelete(userId);
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
