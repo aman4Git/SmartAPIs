@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+require("dotenv").config();
 const User = require("../../Models/User");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
