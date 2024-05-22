@@ -48,22 +48,6 @@ router.put("/:id", userController.updateUser);
 router.delete("/:id", userController.deleteUser);
 
 /**
- * @description Route to verify users email
- */
-router.post(
-  "/verify-email",
-  body("otp").isLength({ min: 6 }).withMessage("OTP must not be empty"),
-  body("verificationToken")
-    .isLength({ max: 700 })
-    .withMessage("verificationToken must not be empty"),
-  body("email")
-    .isEmail()
-    .isLength({ min: 1 })
-    .withMessage("Email must not be empty"),
-  userController.verifyEmail
-);
-
-/**
  * @author Aman
  * @description Route to Login users
  */
