@@ -3,12 +3,12 @@ require("dotenv").config();
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(
-      "mongodb+srv://aman:5yhjbJJXFQm2Ik1c@cluster0.4ibjvcc.mongodb.net/",
+    const URL = process.env.DATABASE_CONNECTION_STRING;
+    await mongoose.connect(URL,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        dbName: "aman-portfolio",
+        dbName: "smart-api",
       }
     );
     console.log("MongoDB Connected");
